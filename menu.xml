@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/item_gray"
+        android:title="Gray"
+      />
+
+    <item android:id="@+id/item_grayFast"
+        android:title="Gray Fast"
+        />
+
+    <item android:id="@+id/item_sepia"
+        android:title="Sepia"
+        />
+
+    <item android:id="@+id/item_invert"
+        android:title="Invert"
+        />
+
+    <item android:id="@+id/item_randomshade"
+        android:title="Random Hue"
+        />
+
+    <item android:id="@+id/item_brightnessPlus"
+        android:title="Brightness + "
+        />
+
+
+    <item android:id="@+id/item_brightnessMoins"
+        android:title="Brightness + "
+        />
+
+    <item android:id="@+id/item_contrast"
+        android:title="Contrast"
+        />
+
+    <item android:id="@+id/item_egalHisto"
+        android:title="Egalisation Black and white"
+        />
+
+    <item android:id="@+id/item_egalImgCouleur"
+        android:title="Egalisation Color"
+        />
+
+    <item android:id="@+id/item_Convolution"
+        android:title="Convolution Moyenneur"
+        />
+
+    <item android:id="@+id/item_test"
+        android:title="test"
+        />
+
+
+    <item android:id="@+id/item_reset"
+        android:title="Reset"
+        />
+
+    <item android:id="@+id/item_save"
+        android:title="Save"
+        />
+
+
+    <item android:id="@+id/item_quit"
+        android:title="Quit"
+        />
+
+</menu>
