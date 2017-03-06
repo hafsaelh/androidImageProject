@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private static final int CAMERA_REQUEST = 1888;
 
-
+    //Prendre des photos depuis la caméra
 
     static String Camera_Photo_ImagePath = "";
     private static File f;
@@ -68,21 +68,25 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public static String SaveFolderName;
     private static File gallery;
 
+        //Zoom 
+
     private static final String TAG = "Touch";
     @SuppressWarnings("unused")
     private static final float MIN_ZOOM = 1f,MAX_ZOOM = 1f;
+    
+    // Ces matrices seront utilisées pour enregistrer les pixels de l'image
 
-    // These matrices will be used to scale points of the image
     Matrix matrix = new Matrix();
     Matrix savedMatrix = new Matrix();
+    
+    // Les 3 états (events) que l'utilisateur essaie d'exécuter
 
-    // The 3 states (events) which the user is trying to perform
     static final int NONE = 0;
     static final int DRAG = 1;
     static final int ZOOM = 2;
     int mode = NONE;
-
-    // these PointF objects are used to record the point(s) the user is touching
+    
+    //Ces objets PointF sont utilisés pour enregistrer le(s) point(s) que l'utilisateur touche 
     PointF start = new PointF();
     PointF mid = new PointF();
     float oldDist = 1f;
@@ -131,10 +135,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                             },
                             CAMERA_REQUEST);
                 }else {
+         // créer un dossier pour contenir les photos prises
                 SaveFolderName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App Cam";
                 gallery = new File(SaveFolderName);
                 if (!gallery.exists())
                     gallery.mkdirs();
+        // enregistrer les photos prises 
                 Camera_Photo_ImageName = "Photo" + ".jpg";
                 Camera_Photo_ImagePath = SaveFolderName + "/" + "PictureApp" + ".jpg";
                 System.err.println(" Camera_Photo_ImagePath  "+ Camera_Photo_ImagePath);
@@ -174,7 +180,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         seekbarContrast.setMax(maxContrast);
         seekbarContrast.setProgress(maxContrast/2);
         progressIntContrast = maxContrast/2;
-
+        
+   // Création d'une seekBar pour le réglage du contraste
         seekbarContrast.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -201,7 +208,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         seekbarLuminosity.setProgress(maxLum/2);
         progressIntLuminosity = maxLum / 2;
-
+        
+ // Création d'une seekBar pour le réglage de la luminosité
         seekbarLuminosity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             @Override
@@ -282,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 return true;
 
             case R.id.item_contrast:
-                contrast(bmp, 5.0);
+                contrast(bmp);
                 return true;
 
             case R.id.item_egalHisto:
@@ -329,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         try {
 
             if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
-                    && null != data) {
+                    && null != data) { // Si l'image est récupérée depuis la galerie
 
                 // Récupération de l'image
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -354,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 bmpSave = bmp.copy(Bitmap.Config.ARGB_8888, true);
                 myImageView.setImageBitmap(bmpSave);
 
-            } else  if (requestCode == Take_Photo) {
+            } else  if (requestCode == Take_Photo) { // Si l'image est prise depuis la caméra
                 String filePath = null;
 
                 filePath = Camera_Photo_ImagePath;
@@ -377,6 +385,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
 
     }
+    
+    // fonction permettant de décoder un fichier contenant une photo prise depuis la caméra
+    /* Fonction récupérée sur un forum de stackOverFlow */
 
     public static Bitmap new_decode(File f) {
 
@@ -550,22 +561,20 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         // création de la bitmap modifiable
         operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
 
-
-        // Image size
         int w = bmp.getWidth();
         int h = bmp.getHeight();
         int R, G, B;
 
         int[] pixels = new int[h*w];
         bmp.getPixels(pixels, 0, w, 0, 0, w, h);
-        // scan through all pixels
+        // Parcourt l'image
         for(int i=0;i<pixels.length;i++){
-            // get color on each channel
+            
             R = Color.red(pixels[i]);
             G = Color.green(pixels[i]);
             B = Color.blue(pixels[i]);
-            B = G = R = (int)(0.3 * R + 0.59 * G + 0.11 * B);
-            // apply intensity level for sepid-toning on each channel
+            B = G = R = (int)(0.3 * R + 0.59 * G + 0.11 * B); // Griser les pixels
+            // appliquer le niveau d'intensité nécessaire pour obtenir le filtre sepia à chaque canal de couleurs
             R += 94;
             if(R > 255) { R = 255; }
 
@@ -748,36 +757,38 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         operation.setPixels(pixels, 0, width, 0, 0, width, height);
         myImageView.setImageBitmap(operation);
     }
+    
+    /* Fonction récupérée sur une page GitHub*/
 
     public void contrast(Bitmap src, double value) {
 
 
-        // image size
+        // Taille de l'image
         int width = src.getWidth();
         int height = src.getHeight();
 
-
-        // create a canvas so that we can draw the bmOut Bitmap from source bitmap
+        // Crée un canvas qui va contenir la bitmap finale dessiné à partir de la bitmap originale
         Canvas c = new Canvas();
         c.setBitmap(src);
 
-        // draw bitmap to bmOut from src bitmap so we can modify it
+        // dessine la bitmap finale depuis la bitmap initiale pour qu'on puisse la modifier
         c.drawBitmap(src, 0, 0, new Paint(Color.BLACK));
 
 
-        // color information
         int A, R, G, B;
         int pixel;
-        // get contrast value
+        // Prend la valeur du contraste
         double contrast = Math.pow((100 + value) / 100, 2);
 
-        // scan through all pixels
+        // Parcourt l'image
         for(int x = 0; x < width; ++x) {
             for(int y = 0; y < height; ++y) {
-                // get pixel color
+                // Prend la couleur du pixel
                 pixel = src.getPixel(x, y);
                 A = Color.alpha(pixel);
-                // apply filter contrast for every channel R, G, B
+                R = Color.red(pixel);
+                
+            // Applique le filtre contraste aux trois canaux de couleurs R, G, B
                 R = Color.red(pixel);
                 R = (int)(((((R / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
                 if(R < 0) { R = 0; }
@@ -793,7 +804,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 if(B < 0) { B = 0; }
                 else if(B > 255) { B = 255; }
 
-                // set new pixel color to output bitmap
+                // Applique le changement de couleur à la bitmap 
                 src.setPixel(x, y, Color.argb(A, R, G, B));
             }
         }
@@ -801,39 +812,87 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     public int[] histogram(Bitmap bmp) {
+        
         Bitmap bmp2 = toGray2(bmp);
-        // Image size
+        // Grise bmp
         int w = bmp2.getWidth();
         int h = bmp2.getHeight();
-        int[] hist = new int[256]; // create a tab of size 2566 for each gray scale of the bitmap
+        int[] hist = new int[256]; // Crée un tableau de taille 256 pour chaque niveau de gris de bmp
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                int color = bmp2.getPixel(i, j);// Take the gray scale of (i,j)
+                int color = bmp2.getPixel(i, j) // Prend le niveau de gris du pixel
                 int R = Color.red(color);
-                hist[R] = hist[R] + 1;
+                hist[R] = hist[R] + 1; // Augmente le nombre de pixels ayant le niveau de gris correspondant 
             }
         }
         return hist;
+    }
+ public int[] dynamic(Bitmap bmp) {
+         // Calcule les valeurs max et min de l'histogramme de bmp
+         
+        int[] hist = histogram(bmp);
+        int[] D = new int[2];
+        int min = 0;
+        int max = 0;
+        int maxi = hist[0];
+        int mini = hist[0];
+        for (int i = 0; i < hist.length; i++) {
+            if (hist[i] > maxi) {
+                max = i;
+            } else if (hist[i] < mini) {
+                min = i;
+            }
+        }
+        D[0] = max; 
+        D[1] = min;
+        return D; 
+    }
+
+    public void contrast(Bitmap bmp) {
+        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
+
+        // Image size
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        
+        int[] pixels = new int[h * w];
+        
+        int[] D = dynamic(bmp);
+
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h);
+        
+        // Applique l'extension linéaire de dynamique à l'image
+        
+        for (int i = 0; i < pixels.length; ++i) {
+            int R = 255 * ((Color.red(pixels[i])) - D[1]) / (D[0] - D[1]);
+            int G = 255 * ((Color.green(pixels[i])) - D[1]) / (D[0] - D[1]);
+            int B = 255 * ((Color.blue(pixels[i])) - D[1]) / (D[0] - D[1]);
+            pixels[i] = Color.rgb(R, G, B);
+        }
+        operation.setPixels(pixels, 0, w, 0, 0, w, h);
+        myImageView.setImageBitmap(operation);
     }
 
     public void egalHistogram(Bitmap bmp){
         // création de la bitmap modifiable
         operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
 
-        // Image size
+        // Taille de l'image
         int w = bmp.getWidth();
         int h = bmp.getHeight();
 
         int[] pixels= new int[h*w];
-
+        // Calcule l'histogramme de l'image
         int[] histo = histogram(bmp);
+        
         int[] C = new int[histo.length];
         C[0]=histo[0];
-
+        // Calcule l'histogramme cumulé de l'image
         for(int i=1;i<histo.length;i++){
             C[i] = C[i-1] + histo[i];
         }
-
+        
+        // Egalise l'histogramme de l'image
         bmp.getPixels(pixels,0,w,0,0,w,h);
         for(int i=0;i<pixels.length;i++){
             int R = Color.red(pixels[i]);
@@ -856,12 +915,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         int h = bmp.getHeight();
 
         int[] pixels= new int[h*w];
+        
+        // Calcule de l'intensité de bmp
 
         for (int i=0;i<pixels.length;i++){
             int R = Color.red(pixels[i]);
             int G = Color.green(pixels[i]);
             int B = Color.blue(pixels[i]);
-            int color = (R + G + B)/3; //Intensity of the pixel i
+            int color = (R + G + B)/3; //Intensité du pixel i
             pixels[i]= Color.rgb(color,color,color);
 
         }
@@ -873,6 +934,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     public void egalImgCouleur(Bitmap bmp){
+        //Calcule l'intensité de bmp
         bmp = Intensity(bmp);
         // Image size
         int w = bmp.getWidth();
@@ -956,7 +1018,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         myImageView.setImageBitmap(operation);
     }
-
+    
+    // Partie concernant l'implémentation du zoom.
+        /* Fonction récupérée sur stackOverFlow */
     @Override
     public boolean onTouch(View v, MotionEvent event)
     {
